@@ -41,9 +41,9 @@ class Yolo_head(nn.Module):
             .float()
             .to(device)
         )
-#========具体含义直接看这里面吧.
-        pred_xy = (torch.sigmoid(conv_raw_dxdy) + grid_xy) * stride
-        pred_wh = (torch.exp(conv_raw_dwdh) * anchors) * stride
+#========具体含义直接看这里面吧. 从这里面可以看懂p的物理含义.
+        pred_xy = (torch.sigmoid(conv_raw_dxdy) + grid_xy) * stride  #         pred_xy = (torch.sigmoid(conv_raw_dxdy) + grid_xy) * stride  # 保证了 dx dy 一定在当前cell里面.
+        pred_wh = (torch.exp(conv_raw_dwdh) * anchors) * stride # 保证 w,h torch.exp(conv_raw_dwdh) 一定大于0.
         pred_xywh = torch.cat([pred_xy, pred_wh], dim=-1)
         pred_conf = torch.sigmoid(conv_raw_conf)
         pred_prob = torch.sigmoid(conv_raw_prob)

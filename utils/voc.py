@@ -34,11 +34,11 @@ def parse_voc_annotation(
     with open(anno_path, "a") as f:
         for image_id in tqdm(image_ids):
             new_str = ''
-            image_path = os.path.join(
+            image_path = os.path.join(   # 找id对应的图片
                 data_path, "JPEGImages", image_id + ".jpg"
             )
             annotation = image_path
-            label_path = os.path.join(
+            label_path = os.path.join(  # 找id对应的xml
                 data_path, "Annotations", image_id + ".xml"
             )
             root = ET.parse(label_path).getroot() # 解析一个xml文件.

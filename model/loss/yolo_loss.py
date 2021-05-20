@@ -140,7 +140,7 @@ class YoloV4Loss(nn.Module):
         label_noobj_mask = (1.0 - label_obj_mask) * (
             iou_max < self.__iou_threshold_loss
         ).float()         #小于阈值的都进行mask.        noobj_maks计算方法就是 (1.0 - label_obj_mask) 表示anchor 1表示没有物体, 然后 我们预测值也都小于阈值. 所以这个值就是我们预测这个cell不是物体,并且这个cell真实情况也不是物体.这种情况我们写1.
-
+#============唯一一行体会感觉不深的.
         loss_conf = (
             label_obj_mask * FOCAL(input=p_conf, target=label_obj_mask) # 注意这个focal 用的是 reduction=none ,  就是输入什么shape,输出什么shape,因为他只是一个置信度. 输入的不是一个分布,而是一个0-1之间的float概率值. 结果就是置信度p_conf距离真实标签的距离.
             + label_noobj_mask * FOCAL(input=p_conf, target=label_obj_mask)

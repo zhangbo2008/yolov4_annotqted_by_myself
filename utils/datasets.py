@@ -45,12 +45,12 @@ class Build_Dataset(Dataset): # 这个函数把图片数据转化为pytorch的da
             self.__annotations[item_mix]
         ) # __parse_annotation 里面进行了图片和box 的提升.
         img_mix = img_mix.transpose(2, 0, 1)
-
+# 另外一种数据增强. v4 创新点.
         img, bboxes = dataAug.Mixup()(img_org, bboxes_org, img_mix, bboxes_mix)
         del img_org, bboxes_org, img_mix, bboxes_mix
 #删除中间变量.
         (
-            label_sbbox,
+            label_sbbox,  # shape:  52,52,3,26 #debug技巧: 知道每一个shape里面每一个分量的物理含义.
             label_mbbox,
             label_lbbox,
             sbboxes,
@@ -119,7 +119,7 @@ class Build_Dataset(Dataset): # 这个函数把图片数据转化为pytorch的da
 
         return img, bboxes
 
-    def __creat_label(self, bboxes):
+    def __creat_label(self, bboxes): # fastrcnn
         """
         Label assignment. For a single picture all GT box bboxes are assigned anchor.
         1、Select a bbox in order, convert its coordinates("xyxy") to "xywh"; and scale bbox'
@@ -146,7 +146,7 @@ class Build_Dataset(Dataset): # 这个函数把图片数据转化为pytorch的da
                     int(train_output_size[i]),
                     int(train_output_size[i]),
                     anchors_per_scale,
-                    6 + self.num_classes,
+                    6 + self.num_classes, # mixup函数. 4个坐标,物品的分类索引,带alpha的置信度
                 ) #每一个比例我们玩 多少个预测点,每一个预测点我们玩 3个anchor,每一个anchor我们做一个6+20的分类任务. 6表示长宽高分类号,mix置信度,加 20分类.
             )
             for i in range(3)  # 对比例进行循环. 3代表比例.
@@ -236,7 +236,7 @@ class Build_Dataset(Dataset): # 这个函数把图片数据转化为pytorch的da
                 bboxes_xywh[best_detect][bbox_ind, :4] = bbox_xywh
                 bbox_count[best_detect] += 1
 
-        label_sbbox, label_mbbox, label_lbbox = label # 这3个都等于这一个变量.
+        label_sbbox, label_mbbox, label_lbbox = label # lable是一个数组,里面有3个, 3=3的赋值.
         sbboxes, mbboxes, lbboxes = bboxes_xywh
 
         return label_sbbox, label_mbbox, label_lbbox, sbboxes, mbboxes, lbboxes
